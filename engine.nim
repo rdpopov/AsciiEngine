@@ -24,10 +24,12 @@ proc GenerateField(s_x,s_y,o_x,o_y:int):ref Field=
   for i in mitems(result[].field):
     i = ' '.repeat(s_x)
   return result
+func sl(a:string,h,l:int):string=
+  a[h..a.high()-l]
 
-proc RenderField(f:Field,wind:PWindow,x,y:int)=
-  for i in items 0+..f.field.high():
-    if wind.mvwaddstr(cint(y),cint(x), cstring(i[0+])) == ERR:
+proc RenderField(f:var Field,wind:PWindow,x,y:int)=
+  for i in (f.cut[up])..(f.field.high() - f.cut[down]):
+    if wind.mvwaddstr(cint(y),cint(x), cstring(f.field[i].sl(f.cut[left],f.cut[right]))) == ERR:
       assert(true,"Failed To Draw")
 
 proc MoveAbsolute(f:var Field,wind:PWindow,x,y:int,cut:bool= false)=
@@ -51,10 +53,10 @@ proc MoveAbsolute(f:var Field,wind:PWindow,x,y:int,cut:bool= false)=
     if x_lim[0] > tmp_x:
       f.origin[x_dim] = 0
     if x_lim[1] < tmp_x:
+      # TODO those might get negative so we should limit them still
       f.origin[x_dim] = x_lim[1] - f.size[x_dim]
     if y_lim[0] > tmp_y:
       f.origin[y_dim] = 0
     if y_lim[1] > tmp_y:
       f.origin[y_dim] = y_lim[1] - f.size[y_dim]
-
 
